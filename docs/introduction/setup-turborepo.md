@@ -32,7 +32,8 @@ Create a `.env` file at your project root with the following content:
 ```
 TURBO_API=YOUR_API_URL # Remember to remove the trailing slash
 TURBO_TEAM=team_my_team_name
-TURBO_TOKEN=SECRET # The turbo token must be a valid Bearer auth token
+TURBO_TOKEN=SECRET # TURBO_READ_TOKEN's value, or TURBO_WRITE_TOKEN's where this machine should upload
+TURBO_CACHE=local:rw,remote:r # Readers only: never try to upload
 TURBO_REMOTE_CACHE_SIGNATURE_KEY=SECRET
 ```
 

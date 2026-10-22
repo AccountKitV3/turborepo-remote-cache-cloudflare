@@ -33,7 +33,7 @@ describe('v8 Artifacts API', () => {
 
     function createArtifactGetRequest(url: string) {
       return new Request(url, {
-        headers: { Authorization: 'Bearer ' + workerEnv.TURBO_TOKEN },
+        headers: { Authorization: 'Bearer ' + workerEnv.TURBO_READ_TOKEN },
         method: 'GET',
       });
     }
@@ -149,7 +149,7 @@ describe('v8 Artifacts API', () => {
     function createArtifactPutRequest(url: string, includeTag = false) {
       const request = new Request(url, {
         headers: {
-          Authorization: 'Bearer ' + workerEnv.TURBO_TOKEN,
+          Authorization: 'Bearer ' + workerEnv.TURBO_WRITE_TOKEN,
           'Content-Type': 'application/octet-stream',
         },
         method: 'PUT',
@@ -241,7 +241,7 @@ describe('v8 Artifacts API', () => {
 
     function createArtifactHeadRequest(url: string) {
       return new Request(url, {
-        headers: { Authorization: 'Bearer ' + workerEnv.TURBO_TOKEN },
+        headers: { Authorization: 'Bearer ' + workerEnv.TURBO_READ_TOKEN },
         method: 'HEAD',
       });
     }
@@ -300,7 +300,7 @@ describe('v8 Artifacts API', () => {
     test('it should return 200', async () => {
       const request = new Request('http://localhost/v8/artifacts/events', {
         headers: {
-          Authorization: 'Bearer ' + workerEnv.TURBO_TOKEN,
+          Authorization: 'Bearer ' + workerEnv.TURBO_WRITE_TOKEN,
           'Content-Type': 'application/json',
         },
         method: 'POST',

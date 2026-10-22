@@ -54,8 +54,9 @@ pnpm wrangler r2 bucket create turborepo-cache
 # 4. Publish the project
 pnpm run deploy
 
-# 5. Set a Bearer auth token
-echo "SECRET" | pnpm wrangler secret put TURBO_TOKEN
+# 5. Set the two Bearer auth tokens (they must differ)
+echo "READ_SECRET" | pnpm wrangler secret put TURBO_READ_TOKEN
+echo "WRITE_SECRET" | pnpm wrangler secret put TURBO_WRITE_TOKEN
 ```
 
 ## ⚙️ Configuration
@@ -66,9 +67,23 @@ In order to successfully run the [deploy](.github/workflows//deploy.yml) Github 
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `TURBO_TOKEN`
+- `TURBO_READ_TOKEN`
+- `TURBO_WRITE_TOKEN`
+
+The deploy fails if either token is missing, or if the two are the same.
 
 For those who have forked this repository, feel free to delete the [release.yml](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/blob/master/.github/workflows/release.yml) workflow file. This is only used to automatically publish new releases of this repository to GitHub releases.
+
+### Read and write tokens
+
+The Worker accepts two Bearer tokens:
+
+- `TURBO_READ_TOKEN` can `GET` and `HEAD` artifacts and read `/v8/artifacts/status`. Any other request gets a `403`.
+- `TURBO_WRITE_TOKEN` can do everything, uploads included.
+
+Give the write token only to the runs whose results everyone else should replay (for example CI on your main branch), and the read token to everything else. A reader should also set `TURBO_CACHE=local:rw,remote:r`. Without it, `turbo` tries to upload, gets a `403`, and turns the remote cache off for the rest of that run.
+
+Signing (`remoteCache.signature: true`) doesn't separate readers from writers, because the key that verifies an artifact can also sign one. The write token is what stops a reader putting a signed artifact into the cache.
 
 ### Automatic deletion of old cache files
 
@@ -107,7 +122,8 @@ Create a `.env` file at your project root with the following content:
 ```dotenv
 TURBO_API=YOUR_API_URL # Remember to remove the trailing slash
 TURBO_TEAM=team_my_team_name
-TURBO_TOKEN=SECRET # The turbo token must be a valid Bearer auth token
+TURBO_TOKEN=SECRET # TURBO_READ_TOKEN's value, or TURBO_WRITE_TOKEN's where this machine should upload
+TURBO_CACHE=local:rw,remote:r # Readers only: never try to upload
 TURBO_REMOTE_CACHE_SIGNATURE_KEY=SECRET
 ```
 

@@ -23,8 +23,9 @@ pnpm wrangler r2 bucket create turborepo-cache
 # 4. Publish the project
 pnpm run deploy
 
-# 5. Set a Bearer auth token
-echo "SECRET" | pnpm wrangler secret put TURBO_TOKEN
+# 5. Set the two Bearer auth tokens (they must differ)
+echo "READ_SECRET" | pnpm wrangler secret put TURBO_READ_TOKEN
+echo "WRITE_SECRET" | pnpm wrangler secret put TURBO_WRITE_TOKEN
 ```
 
 And that's it! You should now have a worker deployed to your Cloudflare account.
@@ -39,7 +40,10 @@ In order to successfully run the [deploy](https://github.com/AdiRishi/turborepo-
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `TURBO_TOKEN`
+- `TURBO_READ_TOKEN`
+- `TURBO_WRITE_TOKEN`
+
+The deploy fails if either token is missing, or if the two are the same.
 
 For those who have forked this repository, feel free to delete the [release.yml](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/blob/master/.github/workflows/release.yml), [docs-pr-preview.yml](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/blob/master/.github/workflows/docs-pr-preview.yml) and [deploy-docs.yml](https://github.com/AdiRishi/turborepo-remote-cache-cloudflare/blob/master/.github/workflows/deploy-docs.yml) workflow fils. These are used as part of the main projects CI/CD pipeline and are not needed.
 
