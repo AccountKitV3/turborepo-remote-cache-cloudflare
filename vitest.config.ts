@@ -15,7 +15,8 @@ export default defineConfig({
       miniflare: {
         bindings: {
           ENVIRONMENT: 'testing',
-          TURBO_TOKEN: 'test-token',
+          TURBO_READ_TOKEN: 'test-read-token',
+          TURBO_WRITE_TOKEN: 'test-write-token',
         },
         kvNamespaces: ['KV_STORE'],
       },

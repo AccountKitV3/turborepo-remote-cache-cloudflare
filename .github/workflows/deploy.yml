@@ -20,10 +20,28 @@ jobs:
       - run: pnpm install
       - run: pnpm build
 
+      # Every deploy re-uploads both tokens from this repo's secrets. Fail
+      # rather than deploy a Worker with a token missing, or with one value
+      # serving as both, which would let every reader write.
+      - name: Check both cache tokens are set
+        env:
+          TURBO_READ_TOKEN: ${{ secrets.TURBO_READ_TOKEN }}
+          TURBO_WRITE_TOKEN: ${{ secrets.TURBO_WRITE_TOKEN }}
+        run: |
+          if [ -z "$TURBO_READ_TOKEN" ] || [ -z "$TURBO_WRITE_TOKEN" ]; then
+            echo "::error::Set the TURBO_READ_TOKEN and TURBO_WRITE_TOKEN repository secrets before deploying."
+            exit 1
+          fi
+          if [ "$TURBO_READ_TOKEN" = "$TURBO_WRITE_TOKEN" ]; then
+            echo "::error::TURBO_READ_TOKEN and TURBO_WRITE_TOKEN must differ, or every reader can write."
+            exit 1
+          fi
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         env:
-          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN || 'SECRET' }}
+          TURBO_READ_TOKEN: ${{ secrets.TURBO_READ_TOKEN }}
+          TURBO_WRITE_TOKEN: ${{ secrets.TURBO_WRITE_TOKEN }}
         with:
           accountId: ${{ secrets.CF_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
           apiToken: ${{ secrets.CF_API_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
@@ -33,5 +51,6 @@ jobs:
             wrangler r2 bucket create turborepo-cache || true
             echo "******"
           secrets: |
-            TURBO_TOKEN
+            TURBO_READ_TOKEN
+            TURBO_WRITE_TOKEN
           command: deploy

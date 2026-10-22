@@ -37,7 +37,7 @@ pnpm docs:build       # Build documentation
 Exports Cloudflare Worker with two handlers:
 
 - `fetch`: Initializes `StorageManager`, delegates to Hono router
-- `scheduled`: Cron handler running `deleteOldCache` daily at 3 AM
+- `scheduled`: Cron handler running `deleteOldCache` daily at 3 AM, the only way old artifacts are deleted
 
 ### Storage Layer (`src/storage/`)
 
@@ -54,16 +54,12 @@ Uses Hono (`hono/tiny` for smaller bundle) with valibot validation:
 ```
 /                     → Landing page HTML
 /ping                 → Health check
-/v8/artifacts/*       → Turborepo API (bearer auth required)
+/v8/artifacts/*       → Turborepo API (TURBO_READ_TOKEN: GET/HEAD only; TURBO_WRITE_TOKEN: all)
   PUT /:artifactId    → Upload artifact
   GET /:artifactId    → Download artifact (5 min cache)
   HEAD /:artifactId   → Check artifact exists
   GET /status         → Cache status
   POST /events        → Event tracking (placeholder)
-/internal/*           → Cache management (bearer auth required)
-  POST /delete-expired-objects
-  POST /populate-random-objects
-  GET /count-objects
 ```
 
 ### Cron Job (`src/crons/deleteOldCache.ts`)
